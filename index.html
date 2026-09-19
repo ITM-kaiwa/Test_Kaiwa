@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>会話スピーチ生成ツールVer1.3c</title>
+    <title>会話スピーチ生成ツールVer1.3d</title>
     <style>
         * {
             margin: 0;
@@ -184,6 +184,7 @@
                 <option value="46-50">Test 46-50</option>
                 <option value="custom1">カスタム１</option>
                 <option value="custom2">カスタム２</option>
+                <option value="custom3">カスタム３</option>
             </select>
             <button onclick="displayRandomTopic()">開始</button>
             <button onclick="resetTopic()">リセット</button>
@@ -330,6 +331,12 @@
                 { "vn": "Miêu tả về một ngày của bạn. (Buổi sáng, buổi chiều, buổi tối làm gì, vv…)", "jp": "あなたの<ruby>１日<rt>いちにち</rt></ruby>について、<ruby>話<rt>はな</rt></ruby>してください。（あさ、ごご、よる など）"},
                 { "vn": "Hãy kể lại một lần bạn đi du lịch (đã đi đâu, đi với ai, làm gì…?)", "jp": "<ruby>旅行<rt>りょこう</rt>に<ruby>行<rt>い</rt>ったことについて、<ruby>話<rt>はな</rt></ruby>してください。（いつ、どこへ、だれと、どう など）"},       
                 { "vn": "Hãy giới thiệu về sở thích của bạn.", "jp": "あなたの<ruby>趣味<rt>しゅみ</rt>について、<ruby>話<rt>はな</rt></ruby>してください。"},
+            ],
+            "custom3": [
+                { "vn": "Sau khi đến Nhật, bạn có những dự định gì ngoài công việc. Hãy nói về những dự định đó.", "jp": "<ruby>日本<rt>にほん</rt></ruby>に<ruby>行<rt>い</rt></ruby>ったら、<ruby>仕事<rt>しごと</rt></ruby><ruby>以外<rt>いがい</rt></ruby>で<ruby>何<rt>なに</rt></ruby>をしようと<ruby>思<rt>おも</rt></ruby>っていますか。"},
+                { "vn": "Theo bạn, cần phải chú ý những điều gì về cuộc sống ở Nhật.", "jp": "<ruby>日本<rt>にほん</rt></ruby>の<ruby>生活<rt>せいかつ</rt></ruby>で<ruby>気<rt>き</rt></ruby>をつけることは<ruby>何<rt>なん</rt></ruby>ですか。"},       
+                { "vn": "Bạn đã từng nấu món mỳ chưa ? Hãy dùng まず、つぎに、それから、最後にđể giải thích về cách nấu món mỳ nhé.",
+                 "jp": "ラーメンを<ruby>作<rt>つく</rt></ruby>ったことがありますか。「まず、つぎに、それから、<ruby>最後<rt>さいご</rt></ruby>に」を<ruby>使<rt>つか</rt></ruby>って、<ruby>作<rt>つく</rt></ruby>り<ruby>方<rt>かた</rt></ruby>を<ruby>説明<rt>せつめい</rt></ruby>してください。"},
             ]
         };
 
