@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>会話スピーチ生成ツールVer2.1a</title>
+    <title>会話スピーチ生成ツールVer2.5a</title>
     <style>
         * {
             margin: 0;
@@ -71,6 +71,10 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
             margin-left: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         button:hover:not(:disabled) {
@@ -128,14 +132,15 @@
             box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
         }
 
-        /* タイマーエリアのスタイル（横並び） */
+        /* タイマー・録音エリアのスタイル（横並び） */
         .timer-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 12px;
             margin-top: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         #timerDisplay {
@@ -148,7 +153,54 @@
             padding: 5px 15px;
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-left: 10px;
+        }
+
+        /* 録音ボタン用スタイル */
+        .btn-record {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            color: white;
+            margin-left: 5px;
+        }
+
+        .btn-record.recording-active {
+            background: linear-gradient(45deg, #b91c1c, #991b1b);
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* 録音再生・保存エリア */
+        #recordingPlaybackArea {
+            display: none;
+            margin: 15px auto 20px;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        #recordingPlaybackArea audio {
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .download-link {
+            display: inline-block;
+            color: #0284c7;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .download-link:hover {
+            text-decoration: underline;
         }
 
         footer {
@@ -200,12 +252,12 @@
 
             .timer-container {
                 flex-direction: column;
-                gap: 5px;
+                gap: 8px;
             }
 
             #timerDisplay {
-                margin-left: 0;
-                margin-top: 10px;
+                margin: 5px 0;
+                width: 100%;
             }
         }
 
@@ -261,11 +313,19 @@
             <button id="historyBtn3" onclick="showHistory(2)" disabled>３回目</button>
         </div>
 
-        <!-- タイマー機能エリア（文章表示欄の下に配置、横並び構成） -->
+        <!-- タイマー機能・録音エリア（横並び構成） -->
         <div class="timer-container">
             <button onclick="startTimer(180)">3分</button>
             <button onclick="startTimer(120)">2分</button>
             <div id="timerDisplay">00:00</div>
+            <button class="btn-record" id="recordBtn" onclick="toggleRecording()">🎙️ 録音開始</button>
+        </div>
+
+        <!-- 録音再生・保存エリア -->
+        <div id="recordingPlaybackArea">
+            <div><strong>🎧 今回の録音データ:</strong></div>
+            <audio id="recordedAudioPlayer" controls></audio><br>
+            <a id="downloadRecordLink" class="download-link" download="speech_exam.webm">💾 録音音声（WebM）を保存</a>
         </div>
     </div>
 
@@ -338,7 +398,7 @@
             "26-30": [
                 { "vn": "Bây giờ bạn đã có thể làm gì bằng tiếng Nhật.", "jp": "<ruby>今<rt>いま</rt></ruby>、そしてあなたは<ruby>日本語<rt>にほんご</rt></ruby>で<ruby>何<rt>なに</rt></ruby>ができますか。" },
                 { "vn": "Hãy nói về những việc bạn có thể làm và giới thiệu điểm mạnh của bản thân nhé.", "jp": "あなたが<ruby>出来<rt>でき</rt></ruby>ることを<ruby>話<rt>はな</rt></ruby>して、<ruby>自己<rt>じこ</rt></ruby>PRしてください。" },
-                { "vn": "Bạn hãy giới thiệu về cách học tiếng Nhật của mình.", "jp": "あなたの<ruby>日本語<rt>にほんご</rt></ruby>の<ruby>勉強<rt>べんきょう</rt></ruby><ruby>方法<rt>ほうほう</rt></ruby>について<ruby>紹介<rt>しょうかい</rt></ruby>してください。" },
+                { "vn": "Bạn hãy giới thiệu về cách học tiếng Nhật của mình.", "jp": "あなたの<ruby>日本語<rt>にほんご</rt></ruby>の<ruby>勉強<rt>べんきょう</rt><ruby>方法<rt>ほうほう</rt></ruby>について<ruby>紹介<rt>しょうかい</rt></ruby>してください。" },
                 { "vn": "Từ Trung tâm ITM, hàng ngày bạn có thể nghe và thấy được những gì.", "jp": "ITMセンターから、<ruby>毎日<rt>まいにち</rt></ruby>どんな<ruby>音<rt>おと</rt></ruby>が<ruby>聞<rt>き</rt></ruby>こえますか。どんなものが<ruby>見<rt>み</rt></ruby>えますか。" },
                 { "vn": "Hãy kể về một người mà bạn nghĩ là giỏi/ người bạn hâm mộ. Người đó có thể làm được những gì?", "jp": "あなたがすごいと<ruby>思<rt>おも</rt></ruby>う<ruby>人<rt>ひと</rt></ruby>について<ruby>話<rt>はな</rt></ruby>してください。（<ruby>尊敬<rt>そんけい</rt></ruby>している<ruby>人<rt>ひと</rt></ruby>）。その<ruby>人<rt>ひと</rt></ruby>は<ruby>何<rt>なに</rt></ruby>ができますか。" },
                 { "vn": "Bạn đã từng đánh mất hoặc bỏ quên đồ chưa? Hãy kể về nó.", "jp": "<ruby>物<rt>もの</rt></ruby>をなくしてしまったり、<ruby>忘<rt>わす</rt></ruby>れてしまったりしたことはありますか。その<ruby>時<rt>とき</rt></ruby>のことを<ruby>話<rt>はな</rt></ruby>してください。" },
@@ -358,8 +418,8 @@
                 { "vn": "Nếu chỉ sống một mình thì bạn muốn sống ở đâu, thành phố hay vùng quê? Lý do vì sao?", "jp": "もし<ruby>一人<rt>ひとり</rt></ruby>で<ruby>住<rt>す</rt></ruby>むとしたら、<ruby>都会<rt>とかい</rt></ruby>と<ruby>田舎<rt>いなか</rt></ruby>とどちらがいいですか。<ruby>理由<rt>りゆう</rt></ruby>を<ruby>話<rt>はな</rt></ruby>してください。" },
                 { "vn": "Sau khi đến Nhật, bạn có những dự định gì ngoài công việc. Hãy nói về những dự định đó.", "jp": "<ruby>日本<rt>にほん</rt></ruby>に<ruby>行<rt>い</rt></ruby>ったら、<ruby>仕事<rt>しごと</rt></ruby><ruby>以外<rt>いがい</rt></ruby>で<ruby>何<rt>なに</rt></ruby>をしようと<ruby>思<rt>おも</rt></ruby>っていますか。" },
                 { "vn": "Hãy xem tôi là một bạn học viên mới, và giới thiệu/đưa ra lời khuyên cho tôi về cách học của bạn.", "jp": "あなたの<ruby>勉強<rt>べんきょう</rt></ruby><ruby>方法<rt>ほうほう</rt></ruby>について、<ruby>後輩<rt>こうはい</rt></ruby>にアドバイスしてください。わたしを<ruby>後輩<rt>こうはい</rt></ruby>だと<ruby>思<rt>おも</rt></ruby>って<ruby>話<rt>はな</rt></ruby>してください。" },
-                { "vn": "Theo bạn, cần phải chú ý những điều gì khi tham gia giao thông ở Nhật Bản.", "jp": "<ruby>日本<rt>にほん</rt></ruby>の<ruby>交通<rt>こうつう</rt></ruby>で、<ruby>気<rt>き</rt></ruby>をつけることはなんですか。" },
-                { "vn": "Theo bạn, cần phải chú ý những điều gì về cuộc sống ở Nhật.", "jp": "<ruby>日本<rt>にほん</rt></ruby>の<ruby>生活<rt>せいかつ</rt></ruby>で<ruby>気<rt>き</rt></ruby>をつけることは<ruby>何<rt>なん</rt></ruby>ですか。" },
+                { "vn": "Theo bạn, cần phải chú意 những điều gì khi tham gia giao thông ở Nhật Bản.", "jp": "<ruby>日本<rt>にほん</rt></ruby>の<ruby>交通<rt>こうつう</rt></ruby>で、<ruby>気<rt>き</rt></ruby>をつけることはなんですか。" },
+                { "vn": "Theo bạn, cần phải chú意 những điều gì về cuộc sống ở Nhật.", "jp": "<ruby>日本<rt>にほん</rt></ruby>の<ruby>生活<rt>せいかつ</rt></ruby>で<ruby>気<rt>き</rt></ruby>をつけることは<ruby>何<rt>なん</rt></ruby>ですか。" },
                 { "vn": "Hãy xem tôi là một bạn học viên thường xuyên đi học muộn. Bạn hãy đưa ra những lời khuyên cho tôi.", "jp": "<ruby>遅刻<rt>ちこく</rt></ruby>が多い<ruby>後輩<rt>こうはい</rt></ruby>にアドバイスしてください。わたしを<ruby>後輩<rt>こうはい</rt></ruby>だと<ruby>思<rt>おも</rt></ruby>って<ruby>話<rt>はな</rt></ruby>してください。" },
                 { "vn": "Hãy kể về những dự định trong tối nay của bạn.", "jp": "<ruby>今晩<rt>こんばん</rt></ruby>、<ruby>何<rt>なに</rt></ruby>をしようと<ruby>思<rt>おも</rt></ruby>っていますか。" },
                 { "vn": "Vào ngày nghỉ tiếp theo bạn dự định sẽ làm gì.", "jp": "<ruby>次<rt>つぎ</rt></ruby>の<ruby>休<rt>やす</rt></ruby>みに<ruby>何<rt>なに</rt></ruby>をしようと<ruby>思<rt>おも</rt></ruby>っていますか。" },
@@ -375,9 +435,9 @@
                 { "vn": "Hãy kể về một thói quen tốt mà bạn đang duy trì.", "jp": "あなたが<ruby>毎日<rt>まいにち</rt></ruby><ruby>続<rt>つづ</rt></ruby>けている<ruby>良<rt>よ</rt></ruby>い<ruby>習慣<rt>しゅうかん</rt></ruby>について<ruby>話<rt>はな</rt></ruby>してください。" },
                 { "vn": "Để nói tiếng Nhật tốt hơn, mỗi ngày bạn đang làm gì. Hãy kể về điều đó.", "jp": "<ruby>日本語<rt>にほんご</rt></ruby>が<ruby>上手<rt>じょうず</rt></ruby>に<ruby>話<rt>はな</rt></ruby>せるように、<ruby>毎日<rt>まいにち</rt></ruby><ruby>何<rt>なに</rt></ruby>をしていますか。" },
                 { "vn": "Để có một tương lai tốt hơn, theo bạn bây giờ nên làm gì.", "jp": "<ruby>将来<rt>しょうらい</rt></ruby>のために、<ruby>今<rt>いま</rt></ruby><ruby>何<rt>なに</rt></ruby>をしたらいいと<ruby>思<rt>おも</rt></ruby>いますか。" },
-                { "vn": "Hãy kể chi tiết về một lần bạn mắc lỗi nên bị ba mẹ hoặc thầy cô chú ý.", "jp": "あなたがやった<ruby>過<rt>あやま</rt></ruby>ちで、<ruby>両親<rt>りょうしん</rt></ruby>や<ruby>先生<rt>せんせい</rt></ruby>に<ruby>叱<rt>しか</rt></ruby>られたことについて<ruby>話<rt>はな</rt></ruby>してください。" },
-                { "vn": "Khi còn nhỏ bạn đã từng được khen hoặc từng bị chú ý (la mắng) điều gì. Hãy kể chi tiết về việc đó.", "jp": "<ruby>子供<rt>こども</rt></ruby>のとき<ruby>何<rt>なに</rt></ruby>をして<ruby>褒<rt>ほ</rt></ruby>められましたか／<ruby>叱<rt>しか</rt></ruby>られましたか。<ruby>詳<rt>くわ</rt></ruby>しく<ruby>話<rt>はな</rt></ruby>してください。" },
-                { "vn": "Hãy kể chi tiết về một việc mà gần đây bạn được khen hoặc bị chú ý (la mắng).", "jp": "<ruby>最近<rt>さいきん</rt></ruby>、<ruby>褒<rt>ほ</rt></ruby>められたことまたは、<ruby>叱<rt>しか</rt></ruby>られたことについて、<ruby>詳<rt>くわ</rt></ruby>しく<ruby>話<rt>はな</rt></ruby>してください。" },
+                { "vn": "Hãy kể chi tiết về một lần bạn mắc lỗi nên bị ba mẹ hoặc thầy cô chú意.", "jp": "あなたがやった<ruby>過<rt>あやま</rt></ruby>ちで、<ruby>両親<rt>りょうしん</rt></ruby>や<ruby>先生<rt>せんせい</rt></ruby>に<ruby>叱<rt>しか</rt></ruby>られたことについて<ruby>話<rt>はな</rt></ruby>してください。" },
+                { "vn": "Khi còn nhỏ bạn đã từng được khen hoặc từng bị chú意 (la mắng) điều gì. Hãy kể chi tiết về việc đó.", "jp": "<ruby>子供<rt>こども</rt></ruby>のとき<ruby>何<rt>なに</rt></ruby>をして<ruby>褒<rt>ほ</rt></ruby>められましたか／<ruby>叱<rt>しか</rt></ruby>られましたか。<ruby>詳<rt>くわ</rt></ruby>しく<ruby>話<rt>はな</rt></ruby>してください。" },
+                { "vn": "Hãy kể chi tiết về một việc mà gần đây bạn được khen hoặc bị chú意 (la mắng).", "jp": "<ruby>最近<rt>さいきん</rt></ruby>、<ruby>褒<rt>ほ</rt></ruby>められたことまたは、<ruby>叱<rt>しか</rt></ruby>られたことについて、<ruby>詳<rt>くわ</rt></ruby>しく<ruby>話<rt>はな</rt></ruby>してください。" },
                 { "vn": "Bạn đã có thể làm được những điều gì vào lúc nào hoặc khi mấy tuổi. Hãy nhớ lại từ lúc còn nhỏ và kể nhé.", "jp": "あなたはいつ／<ruby>何歳<rt>なんさい</rt></ruby>で、<ruby>何<rt>なに</rt></ruby>が<ruby>出来<rt>でき</rt></ruby>るようになりましたか。<ruby>子供<rt>こども</rt></ruby>の<ruby>頃<rt>ころ</rt></ruby>を<ruby>思<rt>おも</rt></ruby>い<ruby>出<rt>だ</rt></ruby>して、<ruby>話<rt>はな</rt></ruby>してください。" },
                 { "vn": "Quê hương của bạn so với lúc bạn còn nhỏ và bây giờ có gì thay đổi không? Hãy kể cụ thể về những điều đã thay đổi nhé.", "jp": "あなたの<ruby>故郷<rt>ふるさと</rt></ruby>は、あなたが<ruby>子供<rt>こども</rt></ruby>の<ruby>時<rt>とき</rt></ruby>と<ruby>今<rt>いま</rt></ruby>で、<ruby>何<rt>なに</rt></ruby>か<ruby>変<rt>かわ</rt></ruby>わりましたか。<ruby>変<rt>かわ</rt></ruby>わったことについて<ruby>詳<rt>くわ</rt></ruby>しく<ruby>話<rt>はな</rt></ruby>してください。" },
                 { "vn": "Bạn giỏi làm việc gì? Không giỏi (yếu) trong việc gì? Hãy kể về nó nhé.", "jp": "あなたは<ruby>何<rt>なに</rt></ruby>をするのが<ruby>得意<rt>とくい</rt></ruby>で、<ruby>何<rt>なに</rt></ruby>をするのが<ruby>苦手<rt>にがて</rt></ruby>ですか。" },
@@ -402,7 +462,7 @@
             ],
             "custom3": [
                 { "vn": "Sau khi đến Nhật, bạn có những dự định gì ngoài công việc. Hãy nói về những dự định đó.", "jp": "<ruby>日本<rt>にほん</rt></ruby>に<ruby>行<rt>い</rt></ruby>ったら、<ruby>仕事<rt>しごと</rt></ruby><ruby>以外<rt>いがい</rt></ruby>で<ruby>何<rt>なに</rt></ruby>をしようと<ruby>思<rt>おも</rt></ruby>っていますか。"},
-                { "vn": "Theo bạn, cần phải chú ý những điều gì về cuộc sống ở Nhật.", "jp": "<ruby>日本<rt>にほん</rt></ruby>の<ruby>生活<rt>せいかつ</rt></ruby>で<ruby>気<rt>き</rt></ruby>をつけることは<ruby>何<rt>なん</rt></ruby>ですか。"},       
+                { "vn": "Theo bạn, cần phải chú意 những điều gì về cuộc sống ở Nhật.", "jp": "<ruby>日本<rt>にほん</rt></ruby>の<ruby>生活<rt>せいかつ</rt></ruby>で<ruby>気<rt>き</rt></ruby>をつけることは<ruby>何<rt>なん</rt></ruby>ですか。"},       
                 { "vn": "Bạn đã từng nấu món mỳ chưa ? Hãy dùng まず、つぎに、それから、<ruby>最後<rt>さいご</rt></ruby>にđể giải thích về cách nấu món mỳ nhé.",
                  "jp": "ラーメンを<ruby>作<rt>つく</rt></ruby>ったことがありますか。「まず、つぎに、それから、<ruby>最後<rt>さいご</rt></ruby>に」を<ruby>使<rt>つか</rt></ruby>って、<ruby>作<rt>つく</rt></ruby>り<ruby>方<rt>かた</rt></ruby>を<ruby>説明<rt>せつめい</rt></ruby>してください。"},
             ]
@@ -410,8 +470,51 @@
 
         let timerInterval;
         let isShuffling = false;
+        // --- シャッフル効果音（外部ファイル不要・確実に鳴るシンセ音） ---
+let audioCtx = null;
+function playTickSound() {
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(750, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.04);
+    } catch(e) {}
+}
+
+function playSettleSound() {
+    try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.08); // A5
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+    } catch(e) {}
+}
         let shuffleCount = 0;
         let historyTopics = []; // 最大3回分の出題履歴
+
+        // 録音機能用変数
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordStartTime = 0;
+        let recordTimerInterval = null;
 
         function updateHistoryButtons() {
             for (let i = 1; i <= 3; i++) {
@@ -434,7 +537,6 @@
             }
             if (isShuffling) return; // 連打防止
 
-            // 4回目以降の制限チェック
             if (shuffleCount >= 3) {
                 alert("シャッフルは3回までです。これ以上シャッフルする場合は「リセット」を押してください。");
                 return;
@@ -444,7 +546,7 @@
             display.classList.remove("settled");
             display.classList.add("shuffling");
 
-            const totalDuration = 2000; // シャッフル総時間(ms)
+            const totalDuration = 2000;
             const startTime = Date.now();
             let currentDelay = 50;
 
@@ -452,28 +554,26 @@
                 const elapsed = Date.now() - startTime;
                 const progress = Math.min(elapsed / totalDuration, 1);
 
-                // ランダムにトピックを表示
                 const rIdx = Math.floor(Math.random() * topicList.length);
                 const t = topicList[rIdx];
                 display.innerHTML = `<strong>Tiếng việt:</strong> ${t.vn}<br><strong>Tiếng nhật:</strong> ${t.jp}`;
-
+                 // ★ここに追加：回転音（カチッ）
+                playTickSound();
                 if (progress < 1) {
                     currentDelay = 50 + Math.pow(progress, 2.5) * 350;
                     setTimeout(shuffleStep, currentDelay);
                 } else {
-                    // 最終決定トピック
                     const finalIdx = Math.floor(Math.random() * topicList.length);
                     const finalTopic = topicList[finalIdx];
                     display.innerHTML = `<strong>Tiếng việt:</strong> ${finalTopic.vn}<br><strong>Tiếng nhật:</strong> ${finalTopic.jp}`;
                     display.classList.remove("shuffling");
                     display.classList.add("settled");
-
-                    // 履歴に追加 & カウント
+                // ★ここに追加：決定音（ピーン！）
+                    playSettleSound();
                     historyTopics.push(finalTopic);
                     shuffleCount++;
                     updateHistoryButtons();
 
-                    // 3回シャッフル後はボタンを無効化
                     if (shuffleCount >= 3) {
                         shuffleBtn.disabled = true;
                     }
@@ -484,7 +584,6 @@
             shuffleStep();
         }
 
-        // 過去のトピックを再表示
         function showHistory(index) {
             if (isShuffling) return;
             if (historyTopics[index]) {
@@ -492,7 +591,7 @@
                 const display = document.getElementById("topicDisplay");
                 display.classList.remove("shuffling");
                 display.classList.remove("settled");
-                void display.offsetWidth; // アニメーションの再発火トリガー
+                void display.offsetWidth;
                 display.classList.add("settled");
                 display.innerHTML = `<strong>Tiếng việt:</strong> ${t.vn}<br><strong>Tiếng nhật:</strong> ${t.jp}`;
             }
@@ -505,7 +604,6 @@
             clearInterval(timerInterval);
             document.getElementById('timerDisplay').textContent = "00:00";
 
-            // シャッフル回数と履歴のリセット
             shuffleCount = 0;
             historyTopics = [];
             updateHistoryButtons();
@@ -514,9 +612,14 @@
             if (shuffleBtn) {
                 shuffleBtn.disabled = false;
             }
+
+            // 録音中であれば停止し、再生エリアを非表示
+            if (isRecording) {
+                toggleRecording();
+            }
+            document.getElementById("recordingPlaybackArea").style.display = "none";
         }
 
-        // タイマー制御関数
         function startTimer(seconds) {
             clearInterval(timerInterval);
             const display = document.getElementById('timerDisplay');
@@ -538,11 +641,70 @@
                                 
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    sound.play();
+                    if (sound) {
+                        sound.currentTime = 0;
+                        sound.play().catch(e => console.warn("音声再生エラー:", e));
+                    }
                     setTimeout(() => {
                         alert("時間です！");
                     }, 100);
                 }
+            }
+        }
+
+        // 録音・録音停止制御関数（ロールカードアプリと同仕様）
+        async function toggleRecording() {
+            const recordBtn = document.getElementById("recordBtn");
+            const playbackArea = document.getElementById("recordingPlaybackArea");
+
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data.size > 0) audioChunks.push(e.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const player = document.getElementById("recordedAudioPlayer");
+                        const downloadLink = document.getElementById("downloadRecordLink");
+
+                        player.src = audioUrl;
+                        downloadLink.href = audioUrl;
+                        playbackArea.style.display = "block";
+
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordStartTime = Date.now();
+                    recordBtn.classList.add("recording-active");
+                    recordBtn.innerHTML = `⏹️ 録音停止 (<span id="recSeconds">00:00</span>)`;
+
+                    recordTimerInterval = setInterval(() => {
+                        const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
+                        const m = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                        const s = String(elapsed % 60).padStart(2, '0');
+                        const secEl = document.getElementById("recSeconds");
+                        if (secEl) secEl.textContent = `${m}:${s}`;
+                    }, 1000);
+
+                } catch (err) {
+                    alert("マイクの使用が許可されていないか、対応していないブラウザです:\n" + err.message);
+                }
+            } else {
+                if (mediaRecorder && mediaRecorder.state !== "inactive") {
+                    mediaRecorder.stop();
+                }
+                isRecording = false;
+                clearInterval(recordTimerInterval);
+                recordBtn.classList.remove("recording-active");
+                recordBtn.innerHTML = `🎙️ 録音開始`;
             }
         }
     </script>
