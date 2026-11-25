@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>会話スピーチ生成ツールVer1.3d</title>
+    <title>会話スピーチ生成ツールVer2.0d</title>
     <style>
         * {
             margin: 0;
@@ -167,6 +167,26 @@
                 margin-top: 10px;
             }
         }
+        /* ルーレットシャッフルアニメーション */
+        #topicDisplay.shuffling {
+            background: linear-gradient(135deg, #fff9c4 0%, #ffffff 100%);
+            border: 2px solid #ffd54f;
+            animation: shufflePulse 0.15s ease-in-out infinite alternate;
+        }
+        @keyframes shufflePulse {
+            0% { transform: scale(1); opacity: 0.85; }
+            100% { transform: scale(1.01); opacity: 1; }
+        }
+        #topicDisplay.settled {
+            animation: settleFlash 0.6s ease-out;
+            border: 2px solid #4caf50;
+            background: linear-gradient(135deg, #e8f5e9 0%, #ffffff 100%);
+        }
+        @keyframes settleFlash {
+            0% { transform: scale(1.03); box-shadow: 0 0 20px rgba(76, 175, 80, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); }
+        }
+    
     </style>
 </head>
 <body>
@@ -268,7 +288,7 @@
                 { vn: "Trước khi đi Nhật hoặc trước khi vào học ở ITM bạn đã được bạn bè, người thân khuyên hoặc dặn dò những điều gì? Bạn nghĩ gì về những điều đó? Hãy kể về nó nhé.", jp: "<ruby>日本<rt>にほん</rt></ruby>に<ruby>行<rt>い</rt></ruby>く<ruby>前<rt>まえ</rt></ruby>／ITMセンターに<ruby>入<rt>はい</rt></ruby>る<ruby>前<rt>まえ</rt></ruby>に<ruby>友達<rt>ともだち</rt></ruby>や<ruby>家族<rt>かぞく</rt></ruby>があなたにどんなことを<ruby>言<rt>い</rt></ruby>いましたか。どう<ruby>思<rt>おも</rt></ruby>いますか。それを<ruby>話<rt>はな</rt></ruby>してください。" }
             ],
             "26-30": [
-                { "vn": "Bây giờ bạn đã có thể làm gì bằng tiếng Nhật.", "jp": "<ruby>今<rt>いま</rt></ruby, してあなたは<ruby>日本語<rt>にほんご</rt></ruby>で<ruby>何<rt>なに</rt></ruby>ができますか。" },
+                { "vn": "Bây giờ bạn đã có thể làm gì bằng tiếng Nhật.", "jp": "<ruby>今<rt>いま</rt></ruby>, あなたは<ruby>日本語<rt>にほんご</rt></ruby>で<ruby>何<rt>なに</rt></ruby>ができますか。" },
                 { "vn": "Hãy nói về những việc bạn có thể làm và giới thiệu điểm mạnh của bản thân nhé.", "jp": "あなたが<ruby>出来<rt>でき</rt></ruby>ることを<ruby>話<rt>はな</rt></ruby>して、<ruby>自己<rt>じこ</rt></ruby>PRしてください。" },
                 { "vn": "Bạn hãy giới thiệu về cách học tiếng Nhật của mình.", "jp": "あなたの<ruby>日本語<rt>にほんご</rt></ruby>の<ruby>勉強<rt>べんきょう</rt></ruby><ruby>方法<rt>ほうほう</rt></ruby>について<ruby>紹介<rt>しょうかい</rt></ruby>してください。" },
                 { "vn": "Từ Trung tâm ITM, hàng ngày bạn có thể nghe và thấy được những gì.", "jp": "ITMセンターから、<ruby>毎日<rt>まいにち</rt></ruby>どんな<ruby>音<rt>おと</rt></ruby>が<ruby>聞<rt>き</rt></ruby>こえますか。どんなものが<ruby>見<rt>み</rt></ruby>えますか。" },
@@ -323,7 +343,7 @@
             "custom1": [
                 { "vn": "Bây giờ bạn đã có thể làm gì bằng tiếng Nhật.", "jp": "<ruby>今<rt>いま</rt></ruby>、あなたは<ruby>日本語<rt>にほんご</rt></ruby>で<ruby>何<rt>なに</rt></ruby>が<ruby>出来<rt>でき</rt></ruby>ますか。"},
                 { "vn": "Bạn hãy giới thiệu về cách học tiếng Nhật của mình.", "jp": "あなたの<ruby>日本語<rt>にほんご</rt></ruby>の<ruby>勉強<rt>べんきょう</rt>方法<rt>ほうほう</rt></ruby>について<ruby>紹介<rt>しょうかい</rt></ruby>してください"},       
-                { "vn": "Hãy kể về một người mà bạn nghĩ là giỏi/ người bạn hâm mộ. Người đó có thể làm được những gì ?", "jp": "あなたが「すごい」と<ruby>思<rt>おも</rt></ruby>う<ruby>人<rt></ruby>について<ruby>話<rt>はな</rt></ruby>してください。その人は<ruby>何<rt>なに</rt></ruby>が<ruby>出来<rt>でき</rt></ruby>ますか。"},
+                { "vn": "Hãy kể về một người mà bạn nghĩ là giỏi/ người bạn hâm mộ. Người đó có thể làm được những gì ?", "jp": "あなたが「すごい」と<ruby>思<rt>おも</rt></ruby>う<ruby>人<rt>ひと</rt></ruby>について<ruby>話<rt>はな</rt></ruby>してください。その人は<ruby>何<rt>なに</rt></ruby>が<ruby>出来<rt>でき</rt></ruby>ますか。"},
                 { "vn": "Bạn đã từng đánh mất hoặc bỏ quên đồ chưa ? Hãy kể về nó.", "jp": "モノをなくしてしまったり、<ruby>忘<rt>わす</rt>れてしまったりしたことは　ありますか。その<ruby>時<rt>とき</rt></ruby>のことを<ruby>話<rt>はな</rt></ruby>してください。"},
                 { "vn": "BBạn thường chuẩn bị gì trước khi đi du lịch.", "jp": "<ruby>旅行<rt>りょこう</rt></ruby>に<ruby>行<rt>い</rt></ruby>く<ruby>前<rt>まえ</rt></ruby>に、あなたはどんな<ruby>準備<rt>じゅんび</rt></ruby>をしますか。"},
             ],
@@ -342,16 +362,51 @@
 
         let timerInterval;
 
+             let isShuffling = false;
+
         function displayRandomTopic() {
             const testSelect = document.getElementById("testSelect").value;
             const topicList = topics[testSelect];
+            const display = document.getElementById("topicDisplay");
+
             if (!topicList || topicList.length === 0) {
-                document.getElementById("topicDisplay").innerHTML = "このテストのトピックはまだありません。";
+                display.innerHTML = "このテストのトピックはまだありません。";
                 return;
             }
-            const randomIndex = Math.floor(Math.random() * topicList.length);
-            const topic = topicList[randomIndex];
-            document.getElementById("topicDisplay").innerHTML = `<strong>Tiếng việt:</strong> ${topic.vn}<br><strong>Tiếng nhật:</strong> ${topic.jp}`;
+            if (isShuffling) return; // 連打防止
+            isShuffling = true;
+
+            display.classList.remove("settled");
+            display.classList.add("shuffling");
+
+            const totalDuration = 2000; // シャッフル総時間(ms)
+            const startTime = Date.now();
+            let currentDelay = 50; // 初期速度(ms)
+
+            function shuffleStep() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / totalDuration, 1);
+
+                // ランダムにトピックを表示
+                const rIdx = Math.floor(Math.random() * topicList.length);
+                const t = topicList[rIdx];
+                display.innerHTML = `<strong>Tiếng việt:</strong> ${t.vn}<br><strong>Tiếng nhật:</strong> ${t.jp}`;
+
+                if (progress < 1) {
+                    // 徐々に遅くする（イージング）
+                    currentDelay = 50 + Math.pow(progress, 2.5) * 350;
+                    setTimeout(shuffleStep, currentDelay);
+                } else {
+                    // 最終結果を確定表示
+                    const finalIdx = Math.floor(Math.random() * topicList.length);
+                    const finalTopic = topicList[finalIdx];
+                    display.innerHTML = `<strong>Tiếng việt:</strong> ${finalTopic.vn}<br><strong>Tiếng nhật:</strong> ${finalTopic.jp}`;
+                    display.classList.remove("shuffling");
+                    display.classList.add("settled");
+                    isShuffling = false;
+                }
+            }
+            shuffleStep();
         }
 
         function resetTopic() {
